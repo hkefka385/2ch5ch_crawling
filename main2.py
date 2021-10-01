@@ -24,19 +24,22 @@ def main():
                 r = requests.get(URL, headers=headers, timeout=5)
                 r.encoding = r.apparent_encoding
                 soup = bs4.BeautifulSoup(r.text, 'html5lib')
-                title = soup.find_all(class_ = 'title')[0].get_text()
-                posts = soup.find_all(class_ = 'post')
-                
+                title = soup.find_all('h1')[0].get_text()
+
+                posts = soup.find_all(class_ = 'thread')
+
+                date = posts[0].find_all('dt')
+                text = posts[0].find_all('dd')
                 texts = []
-                for post in posts:
+                for post_i in range(len(date)):
                     each_text = {}
-                    each_text['userid'] = post['data-userid']
-                    each_text['threadid'] = post['id']
+                    each_text['userid'] = post_i['data-userid']
+                    each_text['threadid'] = post_i['id']
                     each_text['threadname'] = threadname
-                    meta = post.find_all('div')[0]
+                    meta = post_i.find_all('div')[0]
                     #each_text['meta'] = meta
                     each_text['username'] = meta.find_all('span')[1].get_text()
-                    each_text['date'] = meta.find_all('span')[2].get_text()
+                    each_text['date'] = meta.find_all('span')[2].get_text()       
                     texts.append(each_text)
 
                 with open('save/'+ file_f + '/'+ file_f +'_'+str(name) + '.txt', 'w', encoding = 'utf8') as f:
@@ -50,6 +53,8 @@ def main():
         
                 time.sleep(1)
                 name += 1
+                line = f.readline()
+    
             except:
                 print('no')
                 line = f.readline()
